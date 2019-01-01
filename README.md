@@ -46,27 +46,37 @@ will respond with 'Connected to local bus...'
 Examples forthcoming for python, go, node, etc...  
 Any process that can read and write messages can now be a blockchain app
 
-# Testing BitShovel from command line
-Open terminal and create a listener for bitcoin messages
+# Bitshovel Events (aka Channels or Topics)
+* **bitcoin_reader**  
+  Subscribe to this event to get notified when a new bitcoin message appears on the network
+* **bitcoin_writer**  
+  publish message to this topic to write to bitcoin
+* **shovel_start**  
+  Command to shovel to start listening to bitcoin messages. Pass it the query.
+* **shovel_stop**  
+  Command to shovel to stop listening to bitcoin messages
+
+# Test BitShovel from command line
+Open terminal and create a listener for bitcoin messages. Messages will scroll in this process.
 ```
 redis-cli SUBSCRIBE bitcoin_reader
 ```
-Open another terminal to control BitShovel and start pumping it with commands
+Open another terminal to control BitShovel and start pumping it with commands.
 ```
 redis-cli PUBLISH shovel_start "{"v": 3, "q": { "find": {} }}"
 ```
-Stop shovel
+Stop shovel from reading messages.
 ```
 redis-cli PUBLISH shovel_stop whatever
 ```
-Send a message to bitcoin
+Send a message to bitcoin.
 ```
 redis-cli PUBLISH bitcoin_writer "Hello from BitShovel!"
 ```
 Find the message on bitcoin.  
 https://bitgraph.network/explorer/ewogICJ2IjogMywKICAicSI6IHsKICAgICJmaW5kIjogeyAib3V0LmIwIjogeyAib3AiOiAxMDYgfSwgIm91dC5oMSI6ICI2ZDAyIiwgIm91dC5zMiI6IkhlbGxvIGZyb20gQml0U2hvdmVsISIgfSwKICAgICJwcm9qZWN0IjogeyAib3V0LiQiOiAxIH0KICB9Cn0=
 
-query bitdb using
+Query bitdb using
 ```
 {
   "v": 3,
