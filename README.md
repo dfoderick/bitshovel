@@ -61,7 +61,7 @@ redis-cli PUBLISH shovel_stop whatever
 ```
 Send a message to bitcoin
 ```
-redis-cli PUBLISH bitcoin_writer "Hello from BitShovel!
+redis-cli PUBLISH bitcoin_writer "Hello from BitShovel!"
 ```
 Find the message on bitcoin.  
 https://bitgraph.network/explorer/ewogICJ2IjogMywKICAicSI6IHsKICAgICJmaW5kIjogeyAib3V0LmIwIjogeyAib3AiOiAxMDYgfSwgIm91dC5oMSI6ICI2ZDAyIiwgIm91dC5zMiI6IkhlbGxvIGZyb20gQml0U2hvdmVsISIgfSwKICAgICJwcm9qZWN0IjogeyAib3V0LiQiOiAxIH0KICB9Cn0=
