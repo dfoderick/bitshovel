@@ -1,0 +1,19 @@
+<html>
+<body>
+<script>
+// Bitquery
+var query = {
+  "v": 3, "q": { "find": {} }
+}
+// Base64 encoded query
+var b64 = btoa(JSON.stringify(query))
+document.write(b64)
+// Subscribe to EventSource
+var bitsocket = new EventSource('https://bitsocket.org/s/'+b64)
+// Handle new messages
+bitsocket.onmessage = function(e) {
+  document.write("<pre>" + JSON.stringify(JSON.parse(e.data), null, 2) + "</pre>")
+}
+</script>
+</body>
+</html>

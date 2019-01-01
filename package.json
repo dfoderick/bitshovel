@@ -1,0 +1,25 @@
+{
+  "name": "bitshovel",
+  "version": "0.1.0",
+  "description": "read and write to blockchain in any language instantly",
+  "main": "bitshovel.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dfoderick/bitshovel.git"
+  },
+  "author": "dfoderick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dfoderick/bitshovel/issues"
+  },
+  "homepage": "https://github.com/dfoderick/bitshovel#readme",
+  "dependencies": {
+    "bsv": "^0.20.3",
+    "datacash": "^1.2.1",
+    "eventsource": "^1.0.7",
+    "redis": "^2.8.0"
+  }
+}
