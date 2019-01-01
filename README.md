@@ -3,7 +3,7 @@
 1) Easily read and write messages to bitcoin with ANY language
 2) Combines read and write operations into a single simple Api
 3) Builds on top of unwriter libraries
-4) Easy to deploy using Docker (eventually)
+4) Easy to deploy using Docker (soon)
 5) provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
 6) Compatible with event driven programming and microservices architectures
 
@@ -77,4 +77,4 @@ query bitdb using
 }
 ```
 
-# Testing BitShovel from Python
+# Examples (coming soon)
