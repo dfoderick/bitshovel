@@ -19,10 +19,6 @@ git clone https://github.com/dfoderick/bitshovel
 cd bitshovel
 npm install
 ```
-## Use torusJKL bsv branch or manually update datacash index.js
-Make these changes to datacash index.js to use bsv
-1) require('bsv')
-2) rpc: "https://bchsvexplorer.com"
 
 ## Configure your private keys
 If you want to write data to bitcoin then BitShovel will need private keys for your wallet.

@@ -11,7 +11,7 @@ const redis = require('redis');
 //eventsource for listening to bitsocket streams
 const EventSource = require('eventsource');
 //for writing to bitcoin
-const datacash = require('datacash');
+const datapay = require('datapay');
 const bsv = require('bsv')
 const fs = require('fs');
 
@@ -122,9 +122,16 @@ function shovelToLocalBus(msg) {
 //write the message to bitcoin by creating a transaction
 function shovelToBitcoin(message) {
     console.log(`shoveling to bitcoin ${message}`);
-    datacash.send({
+    datapay.send({
       data: ["0x6d02", message],
-      cash: { key: wallet.wif }
+      pay: { key: wallet.wif }
+    }, function sendResult(err,txid) {
+        if (err) {
+            console.log(err);
+        }
+        if (txid) {
+            console.log(`txid:${txid}`);
+        }
     });
     //TODO:should raise event saying that tx was sent
 }
