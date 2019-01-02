@@ -4,6 +4,8 @@
   "description": "read and write to blockchain in any language instantly",
   "main": "bitshovel.js",
   "scripts": {
+    "start": "node bitshovel.js",
+    "dev": "./node_modules/.bin/nodemon bitshovel.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +22,7 @@
     "bsv": "^0.20.3",
     "datapay": "0.0.3",
     "eventsource": "^1.0.7",
+    "nodemon": "^1.18.9",
     "redis": "^2.8.0"
   }
 }
