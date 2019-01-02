@@ -7,32 +7,31 @@
 5) provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
 6) Compatible with event driven programming and microservices architectures
 
-## Requires redis
-Install and run redis using  
-```
-docker run --name bitshovel-redis -d redis
-```
-
-## Run BitShovel from source (for now until a docker image can be created)  
+## Install using Docker Compose
 ```
 git clone https://github.com/dfoderick/bitshovel
 cd bitshovel
-npm install
+```
+Run the following command *once* to build the docker image.
+```
+docker-compose build --no-cache
+```
+Thereafter, run the following command (notice the `no-recreate` option) so that your private keys will not get wiped out.
+```
+docker-compose up --no-recreate
 ```
 
 ## Configure your private keys
 If you want to write data to bitcoin then BitShovel will need private keys for your wallet.
 BitShovel will create a wallet.json by default when it starts up. You can either update
 the wallet.json file with your own private keys or you can fund the wallet that BitShovel
-generated automatically. To find the wallet address to fund use the following command when BitShovel is running.
+generated. To find the wallet address to fund use the following command when BitShovel is running.
 ```
 redis-cli GET bitshovel.wallet.address
 ```
-## Run the BitShovel server
-```
-node bitshovel.js
-```
-will respond with 'Connected to local bus...'
+The easiest way to fund the wallet is by using moneybutton to withdraw to the BitShovel address.  
+https://www.moneybutton.com/test
+
 
 ## Create your app
 Any process that can read and write messages can now be a blockchain app. [See examples below](#examples).
@@ -77,6 +76,9 @@ Query bitdb using the following query.
   }
 }
 ```
+Search using searchbsv.com  
+https://searchbsv.com/search?q=BitShovel
+
 
 # Examples
 A Python program to write to bitcoin.
@@ -110,3 +112,24 @@ func main() {
 	}
 }
 ```
+
+# Native install for Developers
+Normal users can run BitShovel using the Docker instruction above. Developers wishing to customize the app can install it natively to edit the source file.
+
+## Install redis
+Install and run redis using  
+```
+docker run --name bitshovel-redis -d redis
+```
+
+## Get source code
+```
+git clone https://github.com/dfoderick/bitshovel
+cd bitshovel
+npm install
+```
+## Run BitShovel server
+```
+node bitshovel.js
+```
+will respond with 'Connected to local bus...'

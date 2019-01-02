@@ -1,0 +1,19 @@
+# Start BitShovel service with the command 'docker-compose up --no-recreate'
+# This will prevent docker from wiping the image and forcing it to create a new wallet
+
+version: '3'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: bitshovel-redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    #network_mode: host
+
+  bitshovel:
+    container_name: bitshovel-service
+    build: .
+    # links:
+    #   - redis
+    network_mode: host
