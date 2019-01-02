@@ -28,7 +28,7 @@ Make these changes to datacash index.js to use bsv
 If you want to write data to bitcoin then BitShovel will need private keys for your wallet.
 BitShovel will create a wallet.json by default when it starts up. You can either update
 the wallet.json file with your own private keys or you can fund the wallet that BitShovel
-generated automatically. To find the wallet address to fund use the following command.
+generated automatically. To find the wallet address to fund use the following command when BitShovel is running.
 ```
 redis-cli GET bitshovel.wallet.address
 ```
