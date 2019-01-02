@@ -43,8 +43,7 @@ node bitshovel.js
 will respond with 'Connected to local bus...'
 
 ## Create your app
-Examples forthcoming for python, go, node, etc...  
-Any process that can read and write messages can now be a blockchain app
+Any process that can read and write messages can now be a blockchain app. [See examples below](#examples).
 
 # Bitshovel Events (aka Channels or Topics)
 * **bitcoin_reader**  
@@ -63,7 +62,7 @@ redis-cli SUBSCRIBE bitcoin_reader
 ```
 Open another terminal to control BitShovel and start pumping it with commands.
 ```
-redis-cli PUBLISH shovel_start "{"v": 3, "q": { "find": {} }}"
+redis-cli PUBLISH shovel_start '{"v": 3, "q": { "find": {} }}'
 ```
 Stop shovel from reading messages.
 ```
@@ -76,7 +75,7 @@ redis-cli PUBLISH bitcoin_writer "Hello from BitShovel!"
 Find the message on bitcoin.  
 https://bitgraph.network/explorer/ewogICJ2IjogMywKICAicSI6IHsKICAgICJmaW5kIjogeyAib3V0LmIwIjogeyAib3AiOiAxMDYgfSwgIm91dC5oMSI6ICI2ZDAyIiwgIm91dC5zMiI6IkhlbGxvIGZyb20gQml0U2hvdmVsISIgfSwKICAgICJwcm9qZWN0IjogeyAib3V0LiQiOiAxIH0KICB9Cn0=
 
-Query bitdb using
+Query bitdb using the following query.
 ```
 {
   "v": 3,
@@ -87,4 +86,35 @@ Query bitdb using
 }
 ```
 
-# Examples (coming soon)
+# Examples
+A Python program to write to bitcoin.
+```
+import redis
+bus = redis.Redis()
+bus.publish("bitcoin_writer","Hello from BitShovel! Python")
+```
+A Python program to listen to bitcoin messages.
+```
+import redis
+bus = redis.Redis().pubsub()
+bitcoin_reader = bus.subscribe("bitcoin_reader")
+for message in bus.listen():
+    print(message)
+```
+A golang program to write to bitcoin.
+```
+package main
+import "github.com/go-redis/redis"
+import "log"
+func main() {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	_, err := client.Publish("bitcoin_writer", "Hello from BitShovel! Go").Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
