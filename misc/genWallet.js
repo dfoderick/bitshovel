@@ -4,7 +4,8 @@
 // and use withdraw button
 // then review the tx on a block explorer e.g. https://bchsvexplorer.com
 
-bsv = require('bsv')
+const bsv = require('bsv')
+const fs = require('fs');
 
 var pk = bsv.PrivateKey()
 console.log(pk)
@@ -19,7 +20,6 @@ wallet = {
 const sWallet = JSON.stringify(wallet, null, 2);
 console.log(sWallet)
 
-const fs = require('fs');
 fs.writeFile('wallet.json', sWallet, 'utf8', function(err) {
     if(err) {
         return console.log(err);

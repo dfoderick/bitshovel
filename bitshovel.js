@@ -12,14 +12,18 @@ const redis = require('redis');
 const EventSource = require('eventsource');
 //for writing to bitcoin
 const datacash = require('datacash');
+const bsv = require('bsv')
+const fs = require('fs');
 
 //channel names for the local bus
 //messages on these channels will be tna format. See https://github.com/21centurymotorcompany/tna
 const CHANNEL_READER = "bitcoin_reader";
 const CHANNEL_WRITER = 'bitcoin_writer';
 //start and stop listening commands to the shovel connector
+//TODO: there could be one channel for commands, with command type as part of the message
 const CHANNEL_START = 'shovel_start';
 const CHANNEL_STOP = 'shovel_stop';
+const WALLET_ADDRESS_KEY = 'bitshovel.wallet.address';
 
 //eventually these items will be configurable
 const BITSOCKET_SOURCE = 'https://bitsocket.org/s/';
@@ -28,15 +32,15 @@ const BITSOCKET_SOURCE = 'https://bitsocket.org/s/';
 //later will support named listeners so each can be started and stopped by name
 let BITSOCKET_LISTENERS = [];
 
-const wallet = require(`./wallet.json`)
-//example wallet.json
-// {
-//     "wif":"private key",
-//     "address": "optional address in legacy format"
-// }
+const walletFileName = `wallet.json`;
+if (!fs.existsSync(walletFileName)) {
+    generateWallet();
+}
+const wallet = require(`./${walletFileName}`);
 
 //set up connection to local message bus
 const localbus_sub = redis.createClient();
+storeWalletAddress(wallet.address);
 const localbus_pub = redis.createClient();
 localbus_sub.on("connect", function () {
     console.log("Connected to local bus");
@@ -109,7 +113,7 @@ function stopBitSocket(name) {
     }
 }
 
-//shovel the bitcoin (bitsocket) message on to the local bus
+//shovel the bitcoin (bitsocket tna) message on to the local bus
 function shovelToLocalBus(msg) {
     //announce to the local bus that a bitcoin tx has been broadcast
     localbus_pub.publish(CHANNEL_READER, msg);
@@ -125,3 +129,30 @@ function shovelToBitcoin(message) {
     //TODO:should raise event saying that tx was sent
 }
 
+//example wallet.json
+// {
+//     "wif":"private key",
+//     "address": "optional address in legacy format"
+// }
+function generateWallet() {
+    const pk = bsv.PrivateKey()
+    const address = new bsv.Address(pk.publicKey, bsv.Networks.mainnet)
+
+    const wallet = {
+        "wif": pk.toWIF(),
+        "address": address.toLegacyAddress()
+    }
+    const sWallet = JSON.stringify(wallet, null, 2);
+    fs.writeFileSync(walletFileName, sWallet, 'utf8', function(err) {
+        if(err) {
+            return console.log(err);
+        }
+    });
+    console.log(`generated wallet with address ${wallet.address}`);
+    return wallet;
+}
+
+//store wallet address in redis
+function storeWalletAddress(address) {
+    localbus_sub.set(WALLET_ADDRESS_KEY, address);
+}

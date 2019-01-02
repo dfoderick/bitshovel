@@ -1,6 +1,6 @@
 
 # Why use BitShovel for your blockchain apps?  
-1) Easily read and write messages to bitcoin with ANY language
+1) Easily read and write messages to bitcoin in ANY language
 2) Combines read and write operations into a single simple Api
 3) Builds on top of unwriter libraries
 4) Easy to deploy using Docker (soon)
@@ -25,17 +25,13 @@ Make these changes to datacash index.js to use bsv
 2) rpc: "https://bchsvexplorer.com"
 
 ## Configure your private keys
-Create a file called wallet.json. Code to make a wallet file has been provided in misc/genWallet.js  
+If you want to write data to bitcoin then BitShovel will need private keys for your wallet.
+BitShovel witll create a wallet.json by default when it starts up. You can either update
+the wallet.json file with your own private keys or you can fund the wallet that BitShovel
+generated automatically. To find the wallet address to fund use the following command.
 ```
-node misc/genWallet.js
+redis-cli GET bitshovel.wallet.address
 ```
-Example:
-```
-{
-    "wif":"your private key"
-}
-```
-
 ## Run the BitShovel server
 ```
 node bitshovel.js
