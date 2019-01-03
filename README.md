@@ -50,7 +50,7 @@ Any process that can read and write messages can now be a blockchain app. [See e
 # Test BitShovel from command line
 Open terminal and create a listener for bitcoin messages. Messages will scroll in this process.
 ```
-redis-cli SUBSCRIBE bitshovel.read
+redis-cli SUBSCRIBE bitshovel.watch
 ```
 Open another terminal to control BitShovel and start pumping it with commands.  
 This command will listen to all messages on the bitcoin network.
@@ -73,7 +73,7 @@ Send a message to the bitcoin network (requires wallet to be funded).
 ```
 redis-cli PUBLISH bitshovel.send "Hello from BitShovel!"
 ```
-After a few seconds delay the bitshovel.read terminal should show the message that you just sent to bitcoin.  
+After a few seconds delay the bitshovel.watch terminal should show the message that you just sent to bitcoin.  
 
 You can also find the message on bitcoin explorer.  
 https://bitgraph.network/explorer/ewogICJ2IjogMywKICAicSI6IHsKICAgICJmaW5kIjogeyAib3V0LmIwIjogeyAib3AiOiAxMDYgfSwgIm91dC5oMSI6ICI2ZDAyIiwgIm91dC5zMiI6IkhlbGxvIGZyb20gQml0U2hvdmVsISIgfSwKICAgICJwcm9qZWN0IjogeyAib3V0LiQiOiAxIH0KICB9Cn0=
@@ -92,7 +92,7 @@ You could also search using searchbsv.com..
 https://searchbsv.com/search?q=BitShovel
 
 # Bitshovel Events (aka Channels or Topics)
-* **bitshovel.read**  
+* **bitshovel.watch**  
   Subscribe to this event to get notified when a new bitcoin message appears on the network
 * **bitshovel.send**  
   Publish message to this topic to write to bitcoin
@@ -116,7 +116,7 @@ A Python program to listen to bitcoin messages.
 ```
 import redis
 bus = redis.Redis().pubsub()
-bitshovel_reader = bus.subscribe("bitshovel.read")
+bitshovel_reader = bus.subscribe("bitshovel.watch")
 for message in bus.listen():
     print(message)
 ```
@@ -131,7 +131,7 @@ func main() {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	_, err := client.Publish("bitshovel.writer", "Hello from BitShovel! Go").Result()
+	_, err := client.Publish("bitshovel.send", "Hello from BitShovel! Go").Result()
 	if err != nil {
 		log.Fatal(err)
 	}

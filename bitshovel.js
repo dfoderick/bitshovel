@@ -17,7 +17,7 @@ const fs = require('fs');
 
 //channel names for the local bus
 //messages on these channels will be tna format. See https://github.com/21centurymotorcompany/tna
-const CHANNEL_READ = "bitshovel.read";
+const CHANNEL_READ = "bitshovel.watch";
 const CHANNEL_SEND = 'bitshovel.send';
 //start and stop listening commands to the shovel connector
 //TODO: there could be one channel for commands, with command type as part of the message
