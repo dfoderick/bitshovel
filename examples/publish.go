@@ -7,7 +7,7 @@ func main() {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	_, err := client.Publish("bitcoin_writer", "Hello from BitShovel! Go").Result()
+	_, err := client.Publish("bitshovel.writer", "Hello from BitShovel! Go").Result()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -24,6 +24,6 @@ response = with_requests(url)
 client = SSEClient(response)
 for event in client.events():
     bsock = json.loads(event.data)
-    r.publish("bitcoin_reader",event.data)
+    r.publish("bitshovel.reader",event.data)
     print(bsock)
     #pprint.pprint(bsock)

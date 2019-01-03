@@ -1,3 +1,3 @@
 import redis
 bus = redis.Redis()
-bus.publish("bitcoin_writer","Hello from BitShovel! Python")
+bus.publish("bitshovel.writer","Hello from BitShovel! Python")

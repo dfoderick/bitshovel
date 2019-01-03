@@ -17,13 +17,16 @@ const fs = require('fs');
 
 //channel names for the local bus
 //messages on these channels will be tna format. See https://github.com/21centurymotorcompany/tna
-const CHANNEL_READER = "bitcoin_reader";
-const CHANNEL_WRITER = 'bitcoin_writer';
+const CHANNEL_READER = "bitshovel.reader";
+const CHANNEL_WRITER = 'bitshovel.writer';
 //start and stop listening commands to the shovel connector
 //TODO: there could be one channel for commands, with command type as part of the message
-const CHANNEL_START = 'shovel_start';
-const CHANNEL_STOP = 'shovel_stop';
+const CHANNEL_START = 'bitshovel.start';
+const CHANNEL_STOP = 'bitshovel.stop';
+const CHANNEL_WALLET = 'bitshovel.wallet';
+//keys stored in redis
 const WALLET_ADDRESS_KEY = 'bitshovel.wallet.address';
+const WALLET_PRIVATE_KEY = 'bitshovel.wallet.private';
 
 //eventually these items will be configurable
 const BITSOCKET_SOURCE = 'https://bitsocket.org/s/';
@@ -36,12 +39,12 @@ const walletFileName = `wallet.json`;
 if (!fs.existsSync(walletFileName)) {
     generateWallet();
 }
-const wallet = require(`./${walletFileName}`);
+let wallet = require(`./${walletFileName}`);
 
 //set up connection to local message bus
 const localbus_sub = redis.createClient();
-storeWalletAddress(wallet.address);
 const localbus_pub = redis.createClient();
+storeWalletAddress(wallet.address);
 localbus_sub.on("connect", function () {
     console.log("Connected to local bus");
 });
@@ -49,6 +52,9 @@ localbus_sub.on("connect", function () {
 localbus_sub.on("subscribe", function (channel, message) {
     if (channel === CHANNEL_WRITER) {
         console.log(`Send message to channel '${CHANNEL_WRITER}' to send a bitcoin message`);
+    }
+    if (channel === CHANNEL_WRITER) {
+        console.log(`Send message to channel '${CHANNEL_WALLET}' to change wallet`);
     }
     if (channel === CHANNEL_START) {
         console.log(`Send query to channel '${CHANNEL_START}' to get bitcoin messages`);
@@ -77,11 +83,19 @@ localbus_sub.on("message", function (channel, message) {
         console.log(`stopping bitsocket query ${message}`);
         stopBitSocket(message);
     }
+    if (channel === CHANNEL_WALLET) {
+        //store the private key in local wallet
+        //TODO:should encrypt private key on the wire
+        if (wallet.wif != message) {
+            wallet = generateWallet(message);
+            storeWalletAddress(wallet.address);
+        }
+    }
 });
 localbus_sub.subscribe(CHANNEL_START);
 localbus_sub.subscribe(CHANNEL_STOP);
 localbus_sub.subscribe(CHANNEL_WRITER);
-
+localbus_sub.subscribe(CHANNEL_WALLET);
 
 //start listening for bitcoin messages
 //example query...
@@ -141,25 +155,44 @@ function shovelToBitcoin(message) {
 //     "wif":"private key",
 //     "address": "optional address in legacy format"
 // }
-function generateWallet() {
-    const pk = bsv.PrivateKey()
+function generateWallet(key) {
+    let pk = null; 
+    if (key !== null && key !== undefined && key !== '') {
+        pk = bsv.PrivateKey(key)
+    } else {
+        pk = bsv.PrivateKey()
+    }
     const address = new bsv.Address(pk.publicKey, bsv.Networks.mainnet)
+    console.log(`generated wallet with address ${address}`);
 
     const wallet = {
         "wif": pk.toWIF(),
         "address": address.toLegacyAddress()
     }
+    return storeWallet(wallet)
+}
+
+function storeWallet(wallet) {
     const sWallet = JSON.stringify(wallet, null, 2);
+    backupWallet()
     fs.writeFileSync(walletFileName, sWallet, 'utf8', function(err) {
         if(err) {
             return console.log(err);
         }
     });
-    console.log(`generated wallet with address ${wallet.address}`);
     return wallet;
+}
+
+function backupWallet() {
+    if (fs.existsSync(walletFileName)) {
+        let timestamp = (new Date()).toISOString()
+        .replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).(\d{3})Z$/, '$1$2$3.$4$5$6.$7000000');
+        fs.renameSync(walletFileName, `${walletFileName}.${timestamp}`)
+    }
 }
 
 //store wallet address in redis
 function storeWalletAddress(address) {
-    localbus_sub.set(WALLET_ADDRESS_KEY, address);
+
+    localbus_pub.set(WALLET_ADDRESS_KEY, address, redis.print);
 }

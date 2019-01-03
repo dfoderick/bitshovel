@@ -1,0 +1,4 @@
+{
+    "verbose": true,
+    "ignore": ["wallet.json","wallet.json.*"]
+  }

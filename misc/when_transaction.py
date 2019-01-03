@@ -22,7 +22,7 @@ for event in client.events():
     try:
         bsock = json.loads(event.data)
         #shovel the bitsocket tx to redis
-        r.publish("bitcoin_reader",event.data)
+        r.publish("bitshovel.reader",event.data)
         print(bsock["data"][0]["_id"])
         #pprint.pprint(bsock)
     except Exception as ex:

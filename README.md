@@ -47,19 +47,19 @@ Any process that can read and write messages can now be a blockchain app. [See e
 # Test BitShovel from command line
 Open terminal and create a listener for bitcoin messages. Messages will scroll in this process.
 ```
-redis-cli SUBSCRIBE bitcoin_reader
+redis-cli SUBSCRIBE bitshovel.reader
 ```
 Open another terminal to control BitShovel and start pumping it with commands.
 ```
-redis-cli PUBLISH shovel_start '{"v": 3, "q": { "find": {} }}'
+redis-cli PUBLISH bitshovel.start '{"v": 3, "q": { "find": {} }}'
 ```
 Stop shovel from reading messages.
 ```
-redis-cli PUBLISH shovel_stop whatever
+redis-cli PUBLISH bitshovel.stop whatever
 ```
 Send a message to bitcoin (requires wallet to be funded).
 ```
-redis-cli PUBLISH bitcoin_writer "Hello from BitShovel!"
+redis-cli PUBLISH bitshovel.writer "Hello from BitShovel!"
 ```
 Find the message on bitcoin.  
 https://bitgraph.network/explorer/ewogICJ2IjogMywKICAicSI6IHsKICAgICJmaW5kIjogeyAib3V0LmIwIjogeyAib3AiOiAxMDYgfSwgIm91dC5oMSI6ICI2ZDAyIiwgIm91dC5zMiI6IkhlbGxvIGZyb20gQml0U2hvdmVsISIgfSwKICAgICJwcm9qZWN0IjogeyAib3V0LiQiOiAxIH0KICB9Cn0=
@@ -78,27 +78,29 @@ Search using searchbsv.com
 https://searchbsv.com/search?q=BitShovel
 
 # Bitshovel Events (aka Channels or Topics)
-* **bitcoin_reader**  
+* **bitshovel.reader**  
   Subscribe to this event to get notified when a new bitcoin message appears on the network
-* **bitcoin_writer**  
+* **bitshovel.writer**  
   Publish message to this topic to write to bitcoin
-* **shovel_start**  
+* **bitshovel.start**  
   Command to shovel to start listening to bitcoin messages. Pass it the query.
-* **shovel_stop**  
+* **bitshovel.stop**  
   Command to shovel to stop listening to bitcoin messages
+* **bitshovel.wallet**  
+  Update the wallet to use a new private key
 
 # Examples
 A Python program to write to bitcoin.
 ```
 import redis
 bus = redis.Redis()
-bus.publish("bitcoin_writer","Hello from BitShovel! Python")
+bus.publish("bitshovel.writer","Hello from BitShovel! Python")
 ```
 A Python program to listen to bitcoin messages.
 ```
 import redis
 bus = redis.Redis().pubsub()
-bitcoin_reader = bus.subscribe("bitcoin_reader")
+bitshovel_reader = bus.subscribe("bitshovel.reader")
 for message in bus.listen():
     print(message)
 ```
@@ -113,7 +115,7 @@ func main() {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	_, err := client.Publish("bitcoin_writer", "Hello from BitShovel! Go").Result()
+	_, err := client.Publish("bitshovel.writer", "Hello from BitShovel! Go").Result()
 	if err != nil {
 		log.Fatal(err)
 	}S
