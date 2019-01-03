@@ -1,7 +1,7 @@
 import redis
 bus = redis.Redis().pubsub()
 #listen to the bitshovel.reader channel
-bitshovel_reader = bus.subscribe("bitshovel.reader")
+bitshovel_reader = bus.subscribe("bitshovel.read")
 
 for message in bus.listen():
     print(message)

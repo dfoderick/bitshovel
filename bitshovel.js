@@ -17,24 +17,33 @@ const fs = require('fs');
 
 //channel names for the local bus
 //messages on these channels will be tna format. See https://github.com/21centurymotorcompany/tna
-const CHANNEL_READER = "bitshovel.reader";
-const CHANNEL_WRITER = 'bitshovel.writer';
+const CHANNEL_READ = "bitshovel.read";
+const CHANNEL_SEND = 'bitshovel.send';
 //start and stop listening commands to the shovel connector
 //TODO: there could be one channel for commands, with command type as part of the message
-const CHANNEL_START = 'bitshovel.start';
-const CHANNEL_STOP = 'bitshovel.stop';
+//start/stop obsolete, use stream instead
+// const CHANNEL_START = 'bitshovel.start';
+// const CHANNEL_STOP = 'bitshovel.stop';
+//manage wallet
 const CHANNEL_WALLET = 'bitshovel.wallet';
+//const CHANNEL_ADDRESS = 'bitshovel.address';
+//stream for bitsocket streams
+const CHANNEL_STREAM = 'bitshovel.stream';
+//query for bitdb queries
+const CHANNEL_QUERY = 'bitshovel.query';
+//bitshovel application command
+const CHANNEL_APP = 'bitshovel.app';
 //keys stored in redis
 const WALLET_ADDRESS_KEY = 'bitshovel.wallet.address';
 const WALLET_PRIVATE_KEY = 'bitshovel.wallet.private';
 
 //eventually these items will be configurable
-const BITSOCKET_SOURCE = 'https://bitsocket.org/s/';
+const BITSOCKET_SOURCE = 'https://bitgraph.network/s/' //'https://bitsocket.org/s/';
 
-//TODO: for now only one listener/query is supportd
-//later will support named listeners so each can be started and stopped by name
+//list of active listeners
 let BITSOCKET_LISTENERS = [];
 
+//create a wallet if there is none
 const walletFileName = `wallet.json`;
 if (!fs.existsSync(walletFileName)) {
     generateWallet();
@@ -50,87 +59,183 @@ localbus_sub.on("connect", function () {
 });
 
 localbus_sub.on("subscribe", function (channel, message) {
-    if (channel === CHANNEL_WRITER) {
-        console.log(`Send message to channel '${CHANNEL_WRITER}' to send a bitcoin message`);
+    if (channel === CHANNEL_WALLET) {
+        console.log(`Use message '${CHANNEL_WALLET}' to change wallet`);
     }
-    if (channel === CHANNEL_WRITER) {
-        console.log(`Send message to channel '${CHANNEL_WALLET}' to change wallet`);
+    if (channel === CHANNEL_STREAM) {
+        console.log(`Use message '${CHANNEL_STREAM}' to stream live bitcoin messages`);
     }
-    if (channel === CHANNEL_START) {
-        console.log(`Send query to channel '${CHANNEL_START}' to get bitcoin messages`);
+    if (channel === CHANNEL_QUERY) {
+        console.log(`Use message '${CHANNEL_QUERY}' to get historical bitcoin messages`);
     }
-    if (channel === CHANNEL_STOP) {
-        console.log(`Send anything to channel '${CHANNEL_STOP}' to stop receiving bitcoin messages`);
+    if (channel === CHANNEL_APP) {
+        console.log(`Use message '${CHANNEL_APP}' to control app functions`);
+    }
+    if (channel === CHANNEL_SEND) {
+        console.log(`Use message '${CHANNEL_SEND}' to write to bitcoin (send bitcoin message)`);
     }
 });
 
 localbus_sub.on("message", function (channel, message) {
-    console.log(`got message from local bus ${channel}: ${message}`);
-    if (channel === CHANNEL_WRITER) {
-        //write the message to bitcoin
-        shovelToBitcoin(message);
-    }
-    if (channel === CHANNEL_START) {
-        //start listening to bitsocket messages
-        //this will start broadcasting bitcoin tx on to your local bus
-        console.log(`starting bitsocket listener ${message}`);
-        startBitSocket(message);
-    }
-    if (channel === CHANNEL_STOP) {
-        //stop listening to bitsocket messages
-        //this will shut down all bitcoin tx from broadcasting on your local bus
-        //you can still send tx (using CHANNEL_WRITE)
-        console.log(`stopping bitsocket query ${message}`);
-        stopBitSocket(message);
-    }
-    if (channel === CHANNEL_WALLET) {
-        //store the private key in local wallet
-        //TODO:should encrypt private key on the wire
-        if (wallet.wif != message) {
-            wallet = generateWallet(message);
-            storeWalletAddress(wallet.address);
+    try {
+        console.log(`got message from local bus ${channel}: ${message}`);
+        if (channel === CHANNEL_SEND) {
+            //send the message to bitcoin
+            shovelToBitcoin(message);
+        }
+        //example: bitshovel.stream start|stop name query
+        if (channel === CHANNEL_STREAM) {
+            const cmd = parseCommand("stream", message)
+            if (isStart(cmd.action)) {
+                //start listening to bitsocket messages
+                //this will start broadcasting bitcoin tx on to your local bus
+                console.log(`starting bitsocket listener ${message}`);
+                startBitSocket(cmd);
+            }
+            if (isStop(cmd.action)) {
+                //stop listening to bitsocket messages
+                //this will shut down all bitcoin tx from broadcasting on your local bus
+                //you can still send tx (using CHANNEL_WRITE)
+                stopBitSocket(cmd);
+            }
+        }
+        if (channel === CHANNEL_APP) {
+            //application (address) level command. Assumes an address is specified
+            //bitsocket used cashaddr. will be converted to use legacy address soon
+            const cmd = parseCommand("app", message)
+            if (isStart(cmd.action)) {
+                console.log(`starting app listener ${message}`);
+                startBitSocket(cmd);
+            }
+            if (isStop(cmd.action)) {
+                stopBitSocket(cmd);
+            }
+        }
+        if (channel === CHANNEL_QUERY) {
+            //TODO: query bitdb for tx
+        }
+        if (channel === CHANNEL_WALLET) {
+            //store the private key in local wallet
+            //TODO:should encrypt private key on the wire
+            if (wallet.wif != message) {
+                wallet = generateWallet(message);
+                storeWalletAddress(wallet.address);
+            }
         }
     }
+    catch (err) {
+        console.error(err)
+    }
 });
-localbus_sub.subscribe(CHANNEL_START);
-localbus_sub.subscribe(CHANNEL_STOP);
-localbus_sub.subscribe(CHANNEL_WRITER);
+localbus_sub.subscribe(CHANNEL_STREAM);
+localbus_sub.subscribe(CHANNEL_QUERY);
+localbus_sub.subscribe(CHANNEL_SEND);
+localbus_sub.subscribe(CHANNEL_APP);
 localbus_sub.subscribe(CHANNEL_WALLET);
+
+function parseCommand(command, msg) {
+    const words = msg.split(" ");
+    console.log(words)
+    return {
+        "command": command,
+        "action": words[0],
+        "name": words[1],
+        "parameter": words[2]
+    }
+}
+
+function isStart(action) { return action.toLowerCase() === 'on' || action.toLowerCase() === 'start'}
+function isStop(action) { return action.toLowerCase() === 'off' || action.toLowerCase() === 'stop'}
 
 //start listening for bitcoin messages
 //example query...
 // {"v": 3, "q": { "find": {} }}
-function startBitSocket(query) {
-    //console.log(query);
-    let b64 = Buffer.from(query).toString('base64')
-    //console.log(b64);
-    const url = BITSOCKET_SOURCE + b64;
-    const bitsocket = new EventSource(url);
-    //console.log(url);
-    BITSOCKET_LISTENERS.push(bitsocket);
-    bitsocket.onmessage = function(e) {
-        console.log(e.data);
+function startBitSocket(cmd) {
+    let query = queryFromCommand(cmd)
+    const listener = {
+        name : cmd.name,
+        bitsocket : createEventSource(query)
+    }
+    BITSOCKET_LISTENERS.push(listener);
+    listener.bitsocket.onmessage = function(e) {
+        //surprising that this works! function keeps the listener name in context when it fires
+        console.log(listener.name);
+        logTna(e);
         shovelToLocalBus(e.data);
     }
-    bitsocket.onerror = function(err) {
+    listener.bitsocket.onerror = function(err) {
         console.log(err);
     }
 }
 
-function stopBitSocket(name) {
-    //TODO: support starting/stopping multiple listeners
-    //TODO: for now, just clear out all listeners
-    var soxlen = BITSOCKET_LISTENERS.length;
+function queryFromCommand(cmd) {
+    if (cmd.command === "stream") {
+        //parameter is the query
+        return makeBitquery(JSON.parse(cmd.parameter))
+    }
+    if (cmd.command === "app") {
+        //parameter is the address to monitor
+        const qry = {
+            "v": 3,
+            "q": {
+              "find": {
+                "out.e.a": toCashAddress(cmd.parameter)
+              }
+            }
+          }
+          console.log(typeof qry)
+        return makeBitquery(qry)
+    }
+    //what to do?
+    return cmd.parameter
+}
+
+//make a standard bitquery query
+//basically it will add any missing attributes to make it a standard query
+function makeBitquery(query) {
+    console.log(typeof query)
+    let fullquery = query
+    if (!query.hasOwnProperty("q")) {
+        console.log(typeof query)
+        console.log("fixing query")
+        //assume that query is just the q attribute, fill in the rest
+        fullquery = {
+            "v": 3,
+            "q": query
+        }
+    }
+    return JSON.stringify(fullquery)
+}
+
+function logTna(tna) {
+    console.log(tna);
+}
+
+function createEventSource(query) {
+    //const q = makeBitquery(query)
+    console.log(query);
+    let b64 = Buffer.from(query).toString('base64')
+    //console.log(b64);
+    const url = BITSOCKET_SOURCE + b64;
+    return new EventSource(url)
+}
+
+function stopBitSocket(cmd) {
+    let soxlen = BITSOCKET_LISTENERS.length;
     while (soxlen--) {
-        BITSOCKET_LISTENERS[soxlen].close();
-        BITSOCKET_LISTENERS.splice(soxlen, 1);
+        const listener = BITSOCKET_LISTENERS[soxlen];
+        if (listener.name === cmd.name) {
+            console.log(`stopping bitsocket listener ${listener.name}`)
+            listener.bitsocket.close();
+            BITSOCKET_LISTENERS.splice(soxlen, 1);
+        }
     }
 }
 
 //shovel the bitcoin (bitsocket tna) message on to the local bus
 function shovelToLocalBus(msg) {
     //announce to the local bus that a bitcoin tx has been broadcast
-    localbus_pub.publish(CHANNEL_READER, msg);
+    localbus_pub.publish(CHANNEL_READ, msg);
 }
 
 //write the message to bitcoin by creating a transaction
@@ -193,6 +298,14 @@ function backupWallet() {
 
 //store wallet address in redis
 function storeWalletAddress(address) {
-
     localbus_pub.set(WALLET_ADDRESS_KEY, address, redis.print);
+}
+
+function toCashAddress(originalAddress) {
+    const a = new bsv.Address(originalAddress)
+    const ac = a.toCashAddress()
+    return ac.replace("bitcoincash:","")
+}
+function toOriginalAddress(cashAddress) {
+    return (new bsv.Address(cashAddress)).toLegacyAddress()
 }
