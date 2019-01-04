@@ -12,6 +12,8 @@
 ## What is BitShovel?
 Think of BitShovel as a bitcoin application accelerator. Bitcoin is the universal messaging system. The local bus is the messaging system for just your applications. To broadcast a message to just your applications send a message on the local bus. If you need to broadcast a message to a remote process or you want to preserve an immutable audit trail of your message then broadcast it on bitcoin. Simple.
 
+BitShovel is not a library - it is an installable service that runs in a process on your local network. You communicate with BitShovel by sending it messages. A sequence of messages form a workflow of events. With BitShovel your workflow can listen to events that happen on bitcoin. It can also kick off a remote workflow by sending a message to bitcoin. Your application is now a bot, oracle, and autonomous agent, a living entity on bitcoin.
+
 The name BitShovel comes from its utility as a low level tool. 'Shoveling' is the term for scooping a message on one message bus and forwarding it onto another message bus. Sometimes the same action can be referred to as a bridge or an extender.
 
 ## Install using Docker Compose
@@ -112,7 +114,7 @@ redis-cli PUBLISH bitshovel.query '{"find":{},"limit":1}'
 * **bitshovel.wallet**  
   Update the wallet to use a new private key
 * **bitshovel.app**  
-  Application level commands. Currently allows listening for messages to one application (adress)
+  Application level commands. Currently allows listening for messages to one application (address)
 
 # Examples
 A Python program to send (write) to bitcoin.
