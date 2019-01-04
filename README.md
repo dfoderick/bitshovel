@@ -3,16 +3,18 @@
 
 1) Easily read and write messages to bitcoin in [any language](#examples)
 2) Combines read and write operations into a single simple API
-3) Builds on top of unwriter's excellent libraries
+3) Builds on top of [unwriter's]((https://github.com/unwriter)) [excellent libraries](https://github.com/21centurymotorcompany)
 4) Easy to deploy using Docker
 5) Provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
 6) Compatible with event driven programming and microservices architectures
 7) Additional application services will "plug in" to the messaging infrastructure with a simple Docker install
 
 ## What is BitShovel?
+BitShovel fully embraces the bitcoin architecture [unwriter](https://github.com/unwriter) explains in [Bitsocket: The Realtime API for Bitcoin](https://www.yours.org/content/bitsocket--the-realtime-api-for-bitcoin-0c646d55c152)
+
 Think of BitShovel as a bitcoin application accelerator. Bitcoin is the universal messaging system. The local bus is the messaging system for just your applications. To broadcast a message to just your applications send a message on the local bus. If you need to broadcast a message to a remote process or you want to preserve an immutable audit trail of your message then broadcast it on bitcoin. Simple.
 
-BitShovel is not a library - it is an installable service that runs in a process on your local network. You communicate with BitShovel by sending it messages. A sequence of messages form a workflow of events. With BitShovel your workflow can listen to events that happen on bitcoin. It can also kick off a remote workflow by sending a message to bitcoin. Your application is now a bot, oracle, and autonomous agent, a living entity on bitcoin.
+BitShovel is not a library - it is an installable service that runs in a process on your local network. You communicate with BitShovel by sending it messages. A sequence of messages form a workflow of events. With BitShovel your workflow can listen to events that happen on bitcoin. It can also kick off a remote workflow by sending a message to bitcoin. Your application is now a bot, and oracle, an autonomous agent, a living entity on bitcoin.
 
 The name BitShovel comes from its utility as a low level tool. 'Shoveling' is the term for scooping a message on one message bus and forwarding it onto another message bus. Sometimes the same action can be referred to as a bridge or an extender.
 

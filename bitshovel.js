@@ -161,6 +161,10 @@ function parseCommand(command, msg) {
     }
 }
 
+function parseMemo(wordString, separator) {
+    return wordString.split(separator)
+}
+
 function isStart(action) { return action.toLowerCase() === 'on' || action.toLowerCase() === 'start'}
 function isStop(action) { return action.toLowerCase() === 'off' || action.toLowerCase() === 'stop'}
 
@@ -257,10 +261,21 @@ function shovelToLocalBus(msg) {
 
 //write the message to bitcoin by creating a transaction
 function shovelToBitcoin(message) {
-    console.log(`shoveling to bitcoin ${message}`);
+    //TODO: for now assume ascii text, later need to distinguish from hex string
+    let s = bsv.Script.buildDataOut(message)
+    let dat = s.toHex()
+    console.log(dat)
+    // console.log(`shoveling to bitcoin ${message}`);
+    // const parsed = parseMemo(message,":")
+    // if (parsed.length > 1) {
+    //     dat = ["0x6d0c", parsed[0], parsed[1]]
+    // }
     datapay.send({
-      data: ["0x6d02", message],
-      pay: { key: wallet.wif }
+        //plain memo message
+        //data: ["0x6d02", message],
+        //memo message with topic
+        data: dat,
+        pay: { key: wallet.wif }
     }, function sendResult(err,txid) {
         if (err) {
             console.log(err);
