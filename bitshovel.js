@@ -14,6 +14,7 @@ const EventSource = require('eventsource');
 const datapay = require('datapay');
 const bsv = require('bsv')
 const fs = require('fs');
+const axios = require('axios')
 
 //channel names for the local bus
 //messages on these channels will be tna format. See https://github.com/21centurymotorcompany/tna
@@ -38,7 +39,9 @@ const WALLET_ADDRESS_KEY = 'bitshovel.wallet.address';
 const WALLET_PRIVATE_KEY = 'bitshovel.wallet.private';
 
 //eventually these items will be configurable
-const BITSOCKET_SOURCE = 'https://bitgraph.network/s/' //'https://bitsocket.org/s/';
+const BITSOCKET_SOURCE = 'https://bitgraph.network/s/'
+const BITDB_SOURCE = 'https://bitdb.network/q/'
+const BITDB_API_KEY = 'qrr6u2amzamlf7cay750j0fnd76fhhcpxgr2ekv2wg'
 
 //list of active listeners
 let BITSOCKET_LISTENERS = [];
@@ -112,7 +115,8 @@ localbus_sub.on("message", function (channel, message) {
             }
         }
         if (channel === CHANNEL_QUERY) {
-            //TODO: query bitdb for tx
+            const url = urlString(BITDB_SOURCE, makeBitquery(JSON.parse(message)))
+            getBitdb(url)
         }
         if (channel === CHANNEL_WALLET) {
             //store the private key in local wallet
@@ -132,6 +136,19 @@ localbus_sub.subscribe(CHANNEL_QUERY);
 localbus_sub.subscribe(CHANNEL_SEND);
 localbus_sub.subscribe(CHANNEL_APP);
 localbus_sub.subscribe(CHANNEL_WALLET);
+
+function getBitdb(url) {
+    var header = {
+        headers: { key: BITDB_API_KEY }
+    };
+    axios.get(url, header).then(function(r) {
+        //console.log(`queried ${r.data.u.length} results`)
+        for (let item of r.data.u) {
+            //console.log(JSON.stringify(item))
+            shovelToLocalBus(JSON.stringify(item))
+        }
+    })
+}
 
 function parseCommand(command, msg) {
     const words = msg.split(" ");
@@ -193,11 +210,9 @@ function queryFromCommand(cmd) {
 //make a standard bitquery query
 //basically it will add any missing attributes to make it a standard query
 function makeBitquery(query) {
-    console.log(typeof query)
     let fullquery = query
     if (!query.hasOwnProperty("q")) {
-        console.log(typeof query)
-        console.log("fixing query")
+        // console.log("fixing query")
         //assume that query is just the q attribute, fill in the rest
         fullquery = {
             "v": 3,
@@ -212,12 +227,14 @@ function logTna(tna) {
 }
 
 function createEventSource(query) {
-    //const q = makeBitquery(query)
-    console.log(query);
+    const url = urlString(BITSOCKET_SOURCE, query)
+    return new EventSource(url)
+}
+
+function urlString(url, query) {
     let b64 = Buffer.from(query).toString('base64')
     //console.log(b64);
-    const url = BITSOCKET_SOURCE + b64;
-    return new EventSource(url)
+    return url + b64;
 }
 
 function stopBitSocket(cmd) {

@@ -1,14 +1,18 @@
 
 # Why use BitShovel for your blockchain apps?  
-Think of BitShovel as a bitcoin application accelerator.
 
 1) Easily read and write messages to bitcoin in [any language](#examples)
 2) Combines read and write operations into a single simple API
 3) Builds on top of unwriter's excellent libraries
 4) Easy to deploy using Docker
-5) provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
+5) Provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
 6) Compatible with event driven programming and microservices architectures
 7) Additional application services will "plug in" to the messaging infrastructure with a simple Docker install
+
+## What is BitShovel?
+Think of BitShovel as a bitcoin application accelerator. Bitcoin is the universal messaging system. The local bus is the messaging system for just your applications. To broadcast a message to just your applications send a message on the local bus. If you need to broadcast a message to a remote process or you want to preserve an immutable audit trail of your message then broadcast it on bitcoin. Simple.
+
+The name BitShovel comes from its utility as a low level tool. 'Shoveling' is the term for scooping a message on one message bus and forwarding it onto another message bus. Sometimes the same action can be referred to as a bridge or an extender.
 
 ## Install using Docker Compose
 ```
@@ -28,7 +32,6 @@ To find out what docker containers are running use
 docker ps
 ```
 ## Configure your private keys
-
 >
 > *An Important Note on Private Keys!*  
 > It is very easy to lose the private keys on a development server in Docker. Do not store a large amount of bitcoin in your wallet. Fund the wallet with small amounts and make backups of your private keys
@@ -90,6 +93,12 @@ Query bitcoin for all messages using the demo string using the following query.
 ```
 You could also search using searchbsv.com..  
 https://searchbsv.com/search?q=BitShovel
+
+
+You can also send a Bitquery query to BitShovel and it will replay the bitcoin messages on your local message bus. This query will get the last bitcoin message and publish it on your local bus.
+```
+redis-cli PUBLISH bitshovel.query '{"find":{},"limit":1}'
+```
 
 # Bitshovel Events (aka Channels or Topics)
 * **bitshovel.watch**  
