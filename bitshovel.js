@@ -3,9 +3,8 @@
 
 //This the connection point between bitcoin and your local application
 //implemented with unwriter libraries for reading and writing to bitcoin
-//Dependencies: docker image must be running with redis using default ip and port
-// e.g. docker run --name bitshovel-redis -d redis
 
+const utils = require('./utils')
 //for now, redis is simplest message bus. later can support more brokers
 const redis = require('redis');
 //eventsource for listening to bitsocket streams
@@ -16,15 +15,13 @@ const bsv = require('bsv')
 const fs = require('fs');
 const axios = require('axios')
 
+const DEBUG = false
+
 //channel names for the local bus
 //messages on these channels will be tna format. See https://github.com/21centurymotorcompany/tna
 const CHANNEL_READ = "bitshovel.watch";
 const CHANNEL_SEND = 'bitshovel.send';
-//start and stop listening commands to the shovel connector
 //TODO: there could be one channel for commands, with command type as part of the message
-//start/stop obsolete, use stream instead
-// const CHANNEL_START = 'bitshovel.start';
-// const CHANNEL_STOP = 'bitshovel.stop';
 //manage wallet
 const CHANNEL_WALLET = 'bitshovel.wallet';
 //const CHANNEL_ADDRESS = 'bitshovel.address';
@@ -88,17 +85,17 @@ localbus_sub.on("message", function (channel, message) {
         }
         //example: bitshovel.stream start|stop name query
         if (channel === CHANNEL_STREAM) {
-            const cmd = parseCommand("stream", message)
-            if (isStart(cmd.action)) {
+            const cmd = urils.parseCommand("stream", message)
+            if (utils.isStart(cmd.action)) {
                 //start listening to bitsocket messages
                 //this will start broadcasting bitcoin tx on to your local bus
                 console.log(`starting bitsocket listener ${message}`);
                 startBitSocket(cmd);
             }
-            if (isStop(cmd.action)) {
+            if (utils.isStop(cmd.action)) {
                 //stop listening to bitsocket messages
                 //this will shut down all bitcoin tx from broadcasting on your local bus
-                //you can still send tx (using CHANNEL_WRITE)
+                //you can still send tx (using CHANNEL_SEND)
                 stopBitSocket(cmd);
             }
         }
@@ -115,7 +112,7 @@ localbus_sub.on("message", function (channel, message) {
             }
         }
         if (channel === CHANNEL_QUERY) {
-            const url = urlString(BITDB_SOURCE, makeBitquery(JSON.parse(message)))
+            const url = utils.urlString(BITDB_SOURCE, makeBitquery(JSON.parse(message)))
             getBitdb(url)
         }
         if (channel === CHANNEL_WALLET) {
@@ -149,24 +146,6 @@ function getBitdb(url) {
         }
     })
 }
-
-function parseCommand(command, msg) {
-    const words = msg.split(" ");
-    console.log(words)
-    return {
-        "command": command,
-        "action": words[0],
-        "name": words[1],
-        "parameter": words[2]
-    }
-}
-
-function parseMemo(wordString, separator) {
-    return wordString.split(separator)
-}
-
-function isStart(action) { return action.toLowerCase() === 'on' || action.toLowerCase() === 'start'}
-function isStop(action) { return action.toLowerCase() === 'off' || action.toLowerCase() === 'stop'}
 
 //start listening for bitcoin messages
 //example query...
@@ -231,14 +210,8 @@ function logTna(tna) {
 }
 
 function createEventSource(query) {
-    const url = urlString(BITSOCKET_SOURCE, query)
+    const url = utils.urlString(BITSOCKET_SOURCE, query)
     return new EventSource(url)
-}
-
-function urlString(url, query) {
-    let b64 = Buffer.from(query).toString('base64')
-    //console.log(b64);
-    return url + b64;
 }
 
 function stopBitSocket(cmd) {
@@ -262,29 +235,24 @@ function shovelToLocalBus(msg) {
 //write the message to bitcoin by creating a transaction
 function shovelToBitcoin(message) {
     //TODO: for now assume ascii text, later need to distinguish from hex string
-    let s = bsv.Script.buildDataOut(message)
-    let dat = s.toHex()
-    console.log(dat)
-    // console.log(`shoveling to bitcoin ${message}`);
-    // const parsed = parseMemo(message,":")
-    // if (parsed.length > 1) {
-    //     dat = ["0x6d0c", parsed[0], parsed[1]]
-    // }
-    datapay.send({
-        //plain memo message
-        //data: ["0x6d02", message],
-        //memo message with topic
-        data: dat,
+    //console.log(`shoveling to bitcoin >${message}<`);
+    let split = utils.splitString(message)
+    console.log(split)
+
+    if (!DEBUG) {
+      datapay.send({
+        data: split,
         pay: { key: wallet.wif }
-    }, function sendResult(err,txid) {
+      }, function sendResult(err,txid) {
         if (err) {
             console.log(err);
         }
         if (txid) {
             console.log(`txid:${txid}`);
         }
-    });
-    //TODO:should raise event saying that tx was sent
+      });
+    }
+    //TODO:could raise event saying that tx was sent
 }
 
 //example wallet.json
@@ -293,7 +261,7 @@ function shovelToBitcoin(message) {
 //     "address": "optional address in legacy format"
 // }
 function generateWallet(key) {
-    let pk = null; 
+    let pk = null;
     if (key !== null && key !== undefined && key !== '') {
         pk = bsv.PrivateKey(key)
     } else {
