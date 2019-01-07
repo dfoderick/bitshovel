@@ -30,6 +30,9 @@ With BitShovel your apps can listen to events that happen on bitcoin. It can als
 
 The name BitShovel comes from its utility as a low level tool. 'Shoveling' is the term for scooping a message on one message bus and forwarding it onto another message bus. Sometimes the same action can be referred to as a bridge or an extender.
 
+## Getting Started
+There is a [Getting Started with BitShovel Tutorial](docs/getstarted.md) which also serves as an installation guide.
+
 ## Install using Docker Compose
 ```
 git clone https://github.com/dfoderick/bitshovel
