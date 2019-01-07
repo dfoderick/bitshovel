@@ -59,7 +59,7 @@ Better. Three bitcoin messages should scroll in the watch window. You are now st
 ```
 pub bitshovel.app 'start walletname PasteYourWalletAddressFromAbove'
 ```
-Again, this command does not display anthing. It tells BitSHovel to sit and wait for someone to send something to your wallet address. That someone will be you in the next step. Let's move on...
+Again, this command does not display anthing. It tells BitShovel to sit and wait for someone to send something to your wallet address. That someone will be you in the next step. Let's move on...
 ### Step 5: Sending messages to bitcoin
 Finally, we can send a message to bitcoin! This command will create a transaction that contains an OP_RETURN.
 ```
@@ -68,7 +68,7 @@ pub bitshovel.send '"Hello from BitShovel!"'
 The watch window that you set up in the previous step should show the transaction in a few seconds. Our UI is not so lovely at this point but we can console ourselves because we know there are many UI tools already that make for a great experience using bitcoin. Lets use some of them now. Search for the message you just sent using searchbsv.com.  
 https://searchbsv.com/search?q=BitShovel
 
-Next, we can make use of the Memo plugin.
+It's there. Great! Next, we can make use of the Memo plugin.
 ```
 pub memo.send "Test from BitShovel Memo"
 ```
