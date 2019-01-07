@@ -1,26 +1,30 @@
 
 # Why use BitShovel for your blockchain apps?  
 
-1) Easily read and write messages to bitcoin in [any language](#examples)
-2) Combines read and write operations into a single simple API
-3) Builds on top of [unwriter]((https://github.com/unwriter)) [excellent libraries](https://github.com/21centurymotorcompany)
-4) Easy to deploy using Docker
-5) Provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
-6) Compatible with event driven programming and microservices architectures
-7) Additional application services will plug in to the messaging infrastructure with a simple Docker install
+* Easily read and write messages to bitcoin in [any language](#examples)
+* Combines read and write operations into a single simple API
+* Builds on top of [unwriter]((https://github.com/unwriter)) [excellent libraries](https://github.com/21centurymotorcompany)
+* Easy to deploy using Docker
+* Provides a simple messaging infrastructure (pubsub, work queues, etc.) for all your applications
+* Compatible with event driven programming and microservices architectures
+* Additional application services will plug in to the messaging infrastructure with a simple Docker install
 
 ## What is BitShovel?
-BitShovel fully embraces the bitcoin architecture [unwriter](https://github.com/unwriter) explains in [Bitsocket: The Realtime API for Bitcoin](https://www.yours.org/content/bitsocket--the-realtime-api-for-bitcoin-0c646d55c152)
+BitShovel fully embraces the architecture [unwriter](https://github.com/unwriter) explains in [Bitsocket: The Realtime API for Bitcoin](https://www.yours.org/content/bitsocket--the-realtime-api-for-bitcoin-0c646d55c152) and recognizes a fundamental truth: *Bitcoin is the universal messaging system.*
 
-Think of BitShovel as a bitcoin application accelerator - a building block for Metanet. *Bitcoin is the universal messaging system.* 
-* If you need to broadcast a message to a remote process or you want to preserve an immutable audit trail of your message then broadcast it on bitcoin. 
-* To broadcast a message to just your applications send a message on the local bus.
+Think of BitShovel as a bitcoin application accelerator - a building block for Metanet.  
+> Broadcast your message to bitcoin if you need any of the enhanced capabilities that bitcoin provides:
+> * You want to preserve an immutable audit trail of your message
+> * You need to transfer money with the transaction as a receipt 
+> * To initiate a remote process or service
+
+> To communicate with a local applicaiton or if none of the enhanced services that bitcoin provides are needed then just broadcast the messate on the local bus.
 
 **It can be that simple!**
 
-BitShovel is not a library. It is an downloadable application service that runs in a process on your local network. You communicate with BitShovel by sending it messages. A sequence of messages form a workflow of events. 
+BitShovel is not a library. It is a downloadable application service black box plug-in component that runs in a process on your local network. You communicate with BitShovel applications by sending it messages. A sequence of messages form a workflow of events. 
 
-With BitShovel your workflow can listen to events that happen on bitcoin. It can also kick off a remote workflow by sending a message to bitcoin. Your application is now a bot, an oracle, an autonomous agent, a smart contract, a living entity on bitcoin.
+With BitShovel your apps can listen to events that happen on bitcoin. It can also kick off a remote workflow by sending a message to bitcoin. Your application is now a bot, an oracle, an autonomous agent, a smart contract, a living entity on bitcoin.
 
 ![BitShovel Architecture](BitShovel.png "BitShovel Architecture")
 
