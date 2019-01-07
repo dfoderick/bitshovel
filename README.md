@@ -16,7 +16,7 @@ Think of BitShovel as a bitcoin application accelerator - a building block for M
 * If you need to broadcast a message to a remote process or you want to preserve an immutable audit trail of your message then broadcast it on bitcoin. 
 * To broadcast a message to just your applications send a message on the local bus.
 
-**Simple!**
+**It can be that simple!**
 
 BitShovel is not a library. It is an downloadable application service that runs in a process on your local network. You communicate with BitShovel by sending it messages. A sequence of messages form a workflow of events. 
 
@@ -63,30 +63,37 @@ https://www.moneybutton.com/test
 Any process that can read and write messages can now be a blockchain app. [See examples below](#examples). Test that your BitShovel instance is running using the command lines below and then get started writing apps.
 
 # Test BitShovel from command line
+To make testing from the command line easier make the following aliases. You can choose any alias that suits.
+```
+alias sub="redis-cli subscribe"
+alias pub="redis-cli publish"
+alias get="redis-cli get"
+```
+
 Open terminal and create a listener for bitcoin messages. Messages will scroll in this process.
 ```
-redis-cli subscribe bitshovel.watch
+sub bitshovel.watch
 ```
 Open another terminal to control BitShovel and start pumping it with commands.  
 This command will listen to all messages on the bitcoin network.
 ```
-redis-cli publish bitshovel.stream 'start streamname {"find":{}}'
+pub bitshovel.stream 'start streamname {"find":{}}'
 ```
 Stop shovel from reading messages.
 ```
-redis-cli publish bitshovel.stream 'stop streamname'
+pub bitshovel.stream 'stop streamname'
 ```
 For fun, lets listen to all the messages that BitShovel is creating. The following command will get your wallet address.
 ```
-redis-cli get bitshovel.wallet.address
+get bitshovel.wallet.address
 ```
 Copy and paste it into the following command to listen for transactions on that address.
 ```
-redis-cli publish bitshovel.app 'start walletname PasteYourWalletAddressFromAbove'
+pub bitshovel.app 'start walletname PasteYourWalletAddressFromAbove'
 ```
 Send a message to the bitcoin network - requires wallet to be funded and needs double quotes (for now).
 ```
-redis-cli publish bitshovel.send '"Hello from BitShovel!"'
+pub bitshovel.send '"Hello from BitShovel!"'
 ```
 After a few seconds delay the bitshovel.watch terminal should show the message that you just sent to bitcoin.  
 
@@ -109,7 +116,7 @@ https://searchbsv.com/search?q=BitShovel
 
 You can also send a Bitquery query to BitShovel and it will replay the bitcoin messages on your local message bus. This query will get the last bitcoin message and publish it on your local bus.
 ```
-redis-cli publish bitshovel.query '{"find":{},"limit":1}'
+pub bitshovel.query '{"find":{},"limit":1}'
 ```
 
 # Bitshovel Events (aka Channels or Topics)
@@ -135,7 +142,7 @@ bus.publish("bitshovel.send",'"Hello from BitShovel! Python"')
 ```
 A Python program to listen to bitcoin messages on the local bus.  
 To see messages in this window you have to also tell BitShovel to watch for messages on bitcoin.  
-e.g. redis-cli publish bitshovel.stream 'start streamname {"find":{}}'
+e.g. ```pub bitshovel.stream 'start streamname {"find":{}}'```
 ```
 import redis
 bus = redis.Redis().pubsub()
