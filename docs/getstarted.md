@@ -48,18 +48,18 @@ At this point BitShovel is not doing anything. Lets tell it to listen for bitcoi
 ```
 sub bitshovel.watch
 ```
-No so interesting. It subscribes to the watch event and then just sits there. The terminal is waiting for bitcoin messages but there are not any messages locally yet. Leave that terminal window open and visible.
+Not so interesting. It subscribes to the watch event and then just sits there. The terminal is waiting for bitcoin messages but there are not any messages locally yet. Leave that terminal window open and visible.
 Open another terminal window and run the following commands to get the last 3 messages from bitcoin.
 (Remember to run the alias commands if you did not put them in your startup script.)
 ```
 alias pub="redis-cli publish"
 pub bitshovel.query '{"find":{},"limit":3}'
 ```
-Better. Three bitcoin messages should scroll in the watch window . We are streaming messages from bitcoin on to our local message bus. Now tell BitShovel to listen for messages that our BitShovel will be sending. This will be used in the next step.
+Better. Three bitcoin messages should scroll in the watch window. You are now streaming messages from bitcoin on to our local message bus. Next tell BitShovel to listen for messages that you will be sending in the next step.
 ```
 pub bitshovel.app 'start walletname PasteYourWalletAddressFromAbove'
 ```
-Again, this command does not display anthing. It tells BitSHovel to sit and wait for someone to send something to your wallet address. That someone will be us in the next step. Let's move on...
+Again, this command does not display anthing. It tells BitSHovel to sit and wait for someone to send something to your wallet address. That someone will be you in the next step. Let's move on...
 ### Step 5: Sending messages to bitcoin
 Finally, we can send a message to bitcoin! This command will create a transaction that contains an OP_RETURN.
 ```
@@ -74,17 +74,17 @@ pub memo.send "Test from BitShovel Memo"
 ```
 Notice the difference? You used memo.send instead of bitshovel.send. The difference is that you sent it to the memo component - the memo component transformed the message according to the Memo protocol and then it forwarded your message to BitShovel which broadcast the message to bitcoin. Yeah!
 
-Log in to https://sv.memo.cash and find your message. Notice that your user is just your address. Let's change that.
+Log in to https://sv.memo.cash and find your message. Notice that your user name is just your address. Let's change that.
 ```
 pub memo.send 'setname "BitShovel"'
 ```
-That's better. Now publish a message with a topic. BitShovel is the topic and Test Topic is the message.
+That's better. Now publish a message with a topic. "BitShovel" is the topic and "Test Topic" is the message.
 ```
 pub memo.send 'posttopic "BitShovel" "Test Topic"'
 ```
 Refresh the Memo page to see the results.
 # Conclusion
-Pause for a moment and consider what you have learned in this tutorial. You have seen with just a simple download and few commands you can read and write to bitcoin.
+Pause for a moment and consider what you have learned in this tutorial. You have seen that with just a simple download and few commands you can read and write to bitcoin.
 * You can get notified whenever someone sends a message or payment to your wallet address.
 * You can do something intereting whenever that notification happens. 
 * You can then send a message back to bitcoin in response.
