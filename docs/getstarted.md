@@ -15,14 +15,14 @@ docker run -p 6379:6379 redis
 ```
 Now for the hard part. Installing BitShovel!
 ```
-docker run --network=host dfoderick/bitshovel
+docker run --network=host dfoderick/bitshovel:getstarted
 ```
 BitShovel will download and start. You should see it respond with `Connected to local bus...`  
 Hmmm. That was too easy. BitShovel is now installed and running. 
 ### Step 2: Download the Memo.cash component
 The base implementation of BitShovel will read and write to bitcoin but it doesn't know about any application specific protocols like memo.cash. Open another terminal and run the following command to download and run a component that understands memo.cash messages.
 ```
-docker run --network=host dfoderick/bitshovel-memo
+docker run --network=host dfoderick/bitshovel-memo:getstarted
 ```
 That's it! Now your shovel will know how to post to the memo.cash web site using bitcoin. In the near future there will be additional components that you can download just as easily to add functionality to your apps. And you can write your own custom components in any language.
 ### Step 3: Testing your installation and Funding your wallet
