@@ -102,12 +102,12 @@ localbus_sub.on("message", function (channel, message) {
         if (channel === CHANNEL_APP) {
             //application (address) level command. Assumes an address is specified
             //bitsocket used cashaddr. will be converted to use legacy address soon
-            const cmd = parseCommand("app", message)
-            if (isStart(cmd.action)) {
+            const cmd = utils.parseCommand("app", message)
+            if (utils.isStart(cmd.action)) {
                 console.log(`starting app listener ${message}`);
                 startBitSocket(cmd);
             }
-            if (isStop(cmd.action)) {
+            if (utils.isStop(cmd.action)) {
                 stopBitSocket(cmd);
             }
         }
