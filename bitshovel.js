@@ -85,7 +85,7 @@ localbus_sub.on("message", function (channel, message) {
         }
         //example: bitshovel.stream start|stop name query
         if (channel === CHANNEL_STREAM) {
-            const cmd = urils.parseCommand("stream", message)
+            const cmd = utils.parseCommand("stream", message)
             if (utils.isStart(cmd.action)) {
                 //start listening to bitsocket messages
                 //this will start broadcasting bitcoin tx on to your local bus
