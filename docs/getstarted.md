@@ -9,7 +9,7 @@ In this tutorial you will learn how to install BitShovel and use it to read and 
 You should have Docker installed as well as redis-cli (currently required for command line testing and demonstration)
 
 ### Step 1: Install BitShovel
-First you need a local message bus. Redis is nice and simple. Run it if you don't have it running already. This may require sudo.
+First you need a local message bus. Redis is nice and simple. Run it if you don't have it already. This may require sudo.
 ```
 docker run -p 6379:6379 redis
 ```
@@ -36,8 +36,15 @@ BitShovel created a wallet when it started for the first time. To get the addres
 ```
 get bitshovel.wallet.address
 ```
-Your wallet will need money so that it can send messages to bitcoin. The simplest way is to fund the wallet from MoneyButton. https://www.moneybutton.com/test  
-Alternatively, if you already have a wallet that is funded and you know the private key then you can tell BitShovel to use it instead.
+Your wallet will need money so that it can send messages to bitcoin. There are at least 3 ways to get it funded.
+
+* The simplest way to fund your wallet is go to https://fund.fullcyclemining.com/
+Enter the address from above. Select an amount (0.05 cents is plenty for testing) then slide the money button. Your payment information will show below when it is successful.
+![BitShovel Fund](BitShovel.fund.png "BitShovel Fund")
+
+* If that doesn't work then fund the wallet using MoneyButton's test page. https://www.moneybutton.com/test   
+
+ * Alternatively, if you already have a wallet that is funded and you know the private key then you can tell BitShovel to use it instead.
 ```
 pub bitshovel.wallet <your_very_private_key_wif>
 get bitshovel.wallet.address
