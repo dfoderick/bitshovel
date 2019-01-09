@@ -5,7 +5,11 @@ const redis = require('redis');
 const WALLET_ADDRESS_KEY = 'bitshovel.wallet.address';
 const WALLET_PRIVATE_KEY = 'bitshovel.wallet.private';
 
-const cache = redis.createClient();
+let cache
+
+let start = function start() {
+    cache = redis.createClient()
+}
 
 //store wallet address in redis
 let storeWalletAddress = function storeWalletAddress(address) {
@@ -13,6 +17,6 @@ let storeWalletAddress = function storeWalletAddress(address) {
 }
 
 module.exports = {
-    print: cache.print,
+    start: start,
     storeWalletAddress: storeWalletAddress
 }

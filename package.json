@@ -23,6 +23,7 @@
     "bsv": "^0.20.3",
     "datapay": "0.0.3",
     "eventsource": "^1.0.7",
+    "mocha": "^5.2.0",
     "nodemon": "^1.18.9",
     "redis": "^2.8.0",
     "requests": "^0.2.2"

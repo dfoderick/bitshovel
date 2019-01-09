@@ -1,5 +1,8 @@
 const utils = require('./utils')
 const bsv = require('bsv')
+const fs = require('fs')
+
+const walletFileName = `wallet.json`;
 
 //example wallet.json
 // {
@@ -28,7 +31,8 @@ let storeWallet = function storeWallet(wallet) {
     backupWallet()
     fs.writeFileSync(walletFileName, sWallet, 'utf8', function(err) {
         if(err) {
-            return console.log(err);
+            console.log(err);
+            return
         }
     });
     return wallet;
@@ -43,6 +47,7 @@ let backupWallet = function backupWallet() {
 }
 
 module.exports = {
+    walletFileName: walletFileName,
     generateWallet: generateWallet,
     storeWallet:storeWallet ,
     backupWallet: backupWallet

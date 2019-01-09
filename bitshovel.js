@@ -25,13 +25,14 @@ const BITDB_SOURCE = 'https://bitdb.network/q/'
 const BITDB_API_KEY = 'qrr6u2amzamlf7cay750j0fnd76fhhcpxgr2ekv2wg'
 
 //create a wallet if there is none
-const walletFileName = `wallet.json`;
-if (!fs.existsSync(walletFileName)) {
+if (!fs.existsSync(shovelwallet.walletFileName)) {
     shovelwallet.generateWallet();
 }
-let wallet = require(`./${walletFileName}`);
+let wallet = require(`./${shovelwallet.walletFileName}`);
 
 function main () {
+    localbus.start()
+    shovelcache.start()
     shovelcache.storeWalletAddress(wallet.address);
 
     localbus.sub.on("message", function (channel, message) {
@@ -86,14 +87,19 @@ function main () {
         catch (err) {
             console.error(err)
         }
-    });
+    })
+    localbus.subscribeall()
 }
 
 main()
 
 function registerApplication(cmd) {
     //for now use the bitshovel wallet, in future probably want each app to have wallet
-    localbus.pub.set(cmd.name, wallet.address, shovelcache.print);
+    localbus.pub.set(cmd.name, wallet.address, function(err) {
+        if (err) {
+            console.error(err)
+        }
+    })
     //localbus_pub.hmset(CHANNEL_APP, cmd.name, wallet.address)
     //register the app in the app registry
     shovelregistry.register(cmd.name, wallet.address)
@@ -102,7 +108,7 @@ function registerApplication(cmd) {
 function getBitdb(url) {
     var header = {
         headers: { key: BITDB_API_KEY }
-    };
+    }
     axios.get(url, header).then(function(r) {
         //console.log(`queried ${r.data.u.length} results`)
         //unconfirmed tx
