@@ -13,7 +13,9 @@ let start = function start() {
 
 //store wallet address in redis
 let storeWalletAddress = function storeWalletAddress(address) {
-    cache.set(WALLET_ADDRESS_KEY, address, redis.print);
+    cache.set(WALLET_ADDRESS_KEY, address, function(err) {
+        console.error(err)
+    })
 }
 
 module.exports = {
