@@ -3,8 +3,8 @@ let parseCommand = function parseCommand(command, msg) {
     console.log(words)
     return {
         "command": command,
-        "action": words[0],
-        "name": words[1],
+        "action": words[0].toLowerCase(),
+        "name": words[1].toLowerCase(),
         "parameter": words[2]
     }
 }
